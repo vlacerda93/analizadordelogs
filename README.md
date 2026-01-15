@@ -1,4 +1,4 @@
-# Análise de Logs Linux
+# Análise de Logs com python Ver2.1
 
 Projeto em Bash para praticar análise básica de logs no Linux, com foco em estudos para SOC Analyst e blue team.
 
@@ -46,11 +46,11 @@ analise-de-logs-linux/
 
 ## Roadmap
 
-- [ ] Versão 1.0: Contagem básica de erros e IPs
-- [ ] Versão 1.1: Adicionar filtro por data/hora
-- [ ] Versão 1.2: Monitoramento de log em tempo real
-- [ ] Versão 2.0: Exportar relatórios para arquivo
+- [✓] Versão 1.0: Contagem básica de erros e IPs
+- [✓] Versão 1.1: Adicionar filtro por data/hora
+- [✓] Versão 1.2: Monitoramento de log em tempo real
+- [✓] Versão 2.0: Exportar relatórios para arquivo
 
 ## Sobre
 
-Projeto criado como parte dos estudos para SOC Analyst Level 1, seguindo o caminho de aprendizado do TryHackMe e conteúdos de segurança cibernética.
+Projeto criado como parte dos estudos para SOC Analyst Level 1, seguindo o caminho de aprendizado do TryHackMe e conteúdos de  segurança cibernética com python e shell.
