@@ -1,116 +1,84 @@
 import customtkinter as ctk
-from collections import Counter
-import re
+import threading
 import os
-from tkinter import filedialog
-import matplotlib.pyplot as plt # Importando a biblioteca de gráficos
+from flask import Flask, request
+from flask_cors import CORS
+from datetime import datetime
+import re
+from collections import Counter
 
-ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("blue")
+# --- CONFIGURAÇÃO DO SERVIDOR (Ouvinte) ---
+server = Flask(__name__)
+CORS(server) # Isso permite que o site fale com o Python
+LOG_FILE = "access.log"
 
-class LogAnalyzerGUI(ctk.CTk):
+@server.route('/log', methods=['POST'])
+def receber_log():
+    try:
+        data = request.json
+        ip_cliente = request.remote_addr
+        horario = datetime.now().strftime('%d/%b/%Y:%H:%M:%S')
+        url = data.get('url', 'URL Desconhecida')
+        
+        # Cria a linha no formato que seu analisador já entende
+        nova_linha = f'{ip_cliente} - - [{horario}] "GET {url} HTTP/1.1" 200 OK\n'
+        
+        with open(LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(nova_linha)
+            
+        return {"status": "recebido"}, 200
+    except Exception as e:
+        return {"status": "erro", "mensagem": str(e)}, 500
+    
+def iniciar_servidor():
+    # O host='0.0.0.0' permite que outros aparelhos (celular, tablet) enviem logs para o seu PC
+    server.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
+
+# --- INTERFACE GRÁFICA ---
+class FuinhaLive(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("Analisador de Logs - Fuinha Edition Pro + Gráficos")
-        self.geometry("1000x750")
+        self.title("Fuinha Edition - Warhammer Live Monitor")
+        self.geometry("900x600")
 
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        # Layout
+        self.lbl = ctk.CTkLabel(self, text="Monitoramento em Tempo Real", font=("Arial", 20, "bold"))
+        self.lbl.pack(pady=10)
 
-        # --- Sidebar ---
-        self.sidebar = ctk.CTkFrame(self, width=200, corner_radius=0)
-        self.sidebar.grid(row=0, column=0, sticky="nsew")
+        self.status_paine = ctk.CTkLabel(self, text="Servidor Ativo: ouvindo porta 5000...", text_color="green")
+        self.status_paine.pack()
+
+        self.btn_atualizar = ctk.CTkButton(self, text="Atualizar Lista de Acessos", command=self.carregar_logs)
+        self.btn_atualizar.pack(pady=10)
+
+        self.textbox = ctk.CTkTextbox(self, width=800, height=400, font=("Consolas", 12))
+        self.textbox.pack(padx=20, pady=20)
         
-        self.lbl_menu = ctk.CTkLabel(self.sidebar, text="MENU", font=ctk.CTkFont(size=18, weight="bold"))
-        self.lbl_menu.pack(pady=20)
-
-        self.btn_carregar = ctk.CTkButton(self.sidebar, text="Analisar access.log", command=self.processar_log)
-        self.btn_carregar.pack(pady=10, padx=20)
-
-        self.btn_grafico = ctk.CTkButton(self.sidebar, text="Ver Gráfico de Horas", fg_color="purple", command=self.mostrar_grafico)
-        self.btn_grafico.pack(pady=10, padx=20)
-
-        self.btn_exportar = ctk.CTkButton(self.sidebar, text="Exportar Resumo", fg_color="green", command=self.exportar_resumo)
-        self.btn_exportar.pack(pady=10, padx=20)
-
-        # --- Área Principal ---
-        self.main_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.main_frame.grid(row=0, column=1, padx=20, pady=20, sticky="nsew")
-        self.main_frame.grid_columnconfigure(0, weight=1)
-        self.main_frame.grid_rowconfigure(1, weight=1)
-
-        self.stats_label = ctk.CTkLabel(self.main_frame, text="Aguardando análise...", justify="left", anchor="w", font=("Segoe UI", 13))
-        self.stats_label.grid(row=0, column=0, padx=10, pady=(0, 10), sticky="w")
-
-        self.textbox = ctk.CTkTextbox(self.main_frame, font=("Consolas", 12))
-        self.textbox.grid(row=1, column=0, sticky="nsew")
-        
-        # Tags de Cores
-        self.textbox.tag_config("erro", foreground="#FF4B4B")
-        self.textbox.tag_config("alerta", foreground="#FFA500")
+        # Tags de cores (as que criamos ontem)
         self.textbox.tag_config("sucesso", foreground="#2EB82E")
 
-        self.dados_grafico = Counter() # Guarda as horas para o gráfico
-
-    def processar_log(self):
-        caminho_diretorio = os.path.dirname(os.path.abspath(__file__))
-        caminho_log = os.path.join(caminho_diretorio, "access.log")
-
-        try:
-            with open(caminho_log, "r", encoding="utf-8") as f:
+    def carregar_logs(self):
+        if os.path.exists(LOG_FILE):
+            with open(LOG_FILE, "r", encoding="utf-8") as f:
                 linhas = f.readlines()
             
             self.textbox.configure(state="normal")
             self.textbox.delete("0.0", "end")
-
-            # Resetar dados do gráfico
-            self.dados_grafico = Counter()
             
-            # Regex para pegar a hora (ex: :12:00:10 vira 12h)
-            regex_hora = r':(\d{2}):\d{2}:\d{2}'
-
             for linha in linhas:
-                # Extração de hora para o gráfico 
-                hora_match = re.search(regex_hora, linha)
-                if hora_match:
-                    hora = hora_match.group(1)
-                    self.dados_grafico[hora] += 1
-
-                # Lógica de Cores 
-                l_lower = linha.lower()
-                tag = None
-                if any(x in l_lower for x in ["error", "500", "failed"]): tag = "erro"
-                elif any(x in l_lower for x in ["denied", "403", "401"]): tag = "alerta"
-                elif " 200 " in l_lower or "success" in l_lower: tag = "sucesso"
-                
-                self.textbox.insert("end", linha, tag)
-
+                # Se for um acesso vindo do site (marcado com OK), fica verde
+                if "200 OK" in linha:
+                    self.textbox.insert("end", linha, "sucesso")
+                else:
+                    self.textbox.insert("end", linha)
+            
             self.textbox.configure(state="disabled")
-            self.stats_label.configure(text=f"Análise Concluída! {len(linhas)} linhas processadas.\nClique em 'Ver Gráfico' para análise temporal.")
 
-        except Exception as e:
-            self.stats_label.configure(text=f"Erro: {e}")
-
-    def mostrar_grafico(self):
-        if not self.dados_grafico:
-            return
-        
-        # Ordenar as horas para o gráfico ficar bonito
-        horas_ordenadas = sorted(self.dados_grafico.keys())
-        valores = [self.dados_grafico[h] for h in horas_ordenadas]
-
-        plt.figure(figsize=(10, 5))
-        plt.bar(horas_ordenadas, valores, color='skyblue')
-        plt.title('Volume de Logs por Hora do Dia')
-        plt.xlabel('Hora (H)')
-        plt.ylabel('Quantidade de Eventos')
-        plt.grid(axis='y', linestyle='--', alpha=0.7)
-        plt.show()
-
-    def exportar_resumo(self):
-        # ... (mesma lógica anterior) ...
-        pass
-
+# --- EXECUÇÃO ---
 if __name__ == "__main__":
-    app = LogAnalyzerGUI()
+    # 1. Lança o servidor em segundo plano
+    threading.Thread(target=iniciar_servidor, daemon=True).start()
+    
+    # 2. Abre a interface
+    app = FuinhaLive()
     app.mainloop()
