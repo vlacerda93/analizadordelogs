@@ -1,56 +1,50 @@
-# Análise de Logs com python Ver2.1
+# Fuinha - Network Translator 🕵️‍♂️📈
 
-Projeto em Bash para praticar análise básica de logs no Linux, com foco em estudos para SOC Analyst e blue team.
+**Fuinha** is a user-centric network monitoring tool designed to demystify internet usage for everyday users. Unlike technical packet sniffers, Fuinha acts as a "Network Translator," mapping abstract data flows into recognizable desktop applications (e.g., YouTube, Torrent, Spotify).
 
-O objetivo é criar pequenos scripts que ajudem a:
-- Contar erros, avisos e eventos importantes em arquivos de log.
-- Identificar IPs mais frequentes.
-- Praticar comandos clássicos de linha de comando como `grep`, `sort`, `uniq`, `head` e `wc`.
+The primary mission is to solve the "Why is my internet slow?" mystery by visually highlighting who is "eating" your bandwidth in real-time.
 
-## Como usar
+## ✨ Features
 
-1. Clone este repositório:
-   ```bash
-   git clone https://github.com/vlacerda93/analise-de-logs-linux.git
-   cd analise-de-logs-linux
-   ```
+- **Global Speed Header**: High-visibility Download and Upload indicators (MB/s).
+- **Process-Level Visibility**: See exactly how many KB/s each application is using.
+- **Visual Insights**: A dynamic pie chart showing bandwidth distribution.
+- **Insight Engine**: Plain-language tips ("Fuinha's Tip") to help manage your connection.
+- **Lightweight & Fast**: Built with Python and `customtkinter` with zero heavy dependencies.
+- **Multilingual**: Support for Portuguese (BR) and English.
 
-2. Dê permissão de execução para o script:
-   ```bash
-   chmod +x scripts/analisar_logs.sh
-   ```
+## 🚀 How to Run
 
-3. Execute o script apontando para um arquivo de log:
-   ```bash
-   ./scripts/analisar_logs.sh logs-exemplo/access.log
-   ```
+### Linux
 
-## Funcionalidades (versão inicial)
+Fuinha requires `psutil` and `customtkinter`. To identify specific processes and their network usage on Linux, it is recommended to run as **Superuser (Sudo)**:
 
-- Mostrar o número total de linhas do log.
-- Contar quantas linhas contêm as palavras `error` e `failed` (não sensível a maiúsculas/minúsculas).
-- Listar os 5 IPs que mais aparecem no log (quando o log tiver IPs na primeira coluna).
-
-Novas funcionalidades serão adicionadas à medida que o estudo avançar.
-
-## Estrutura do projeto
-
-```
-analise-de-logs-linux/
-├─ scripts/
-│  └─ analisar_logs.sh       # Script principal de análise
-├─ logs-exemplo/
-│  └─ access.log             # Arquivo de log de exemplo para testar
-└─ README.md                 # Este arquivo
+```bash
+sudo python3 main.py
 ```
 
-## Roadmap
+### Windows
 
-- [✓] Versão 1.0: Contagem básica de erros e IPs
-- [✓] Versão 1.1: Adicionar filtro por data/hora
-- [✓] Versão 1.2: Monitoramento de log em tempo real
-- [✓] Versão 2.0: Exportar relatórios para arquivo
+Run with Administrator privileges to ensure all process names are captured correctly:
 
-## Sobre
+```powershell
+python main.py
+```
 
-Projeto criado como parte dos estudos para SOC Analyst Level 1, seguindo o caminho de aprendizado do TryHackMe e conteúdos de  segurança cibernética com python e shell.
+## 🛠️ Requirements
+
+- Python 3.10+
+- `psutil`
+- `customtkinter`
+- `Pillow`
+- `pystray` (optional for tray icon)
+
+## 🏗️ Version 3.0 Highlights
+
+This version represents a complete refactor focused on **Aesthetics** and **User Clarity**:
+- New **Deep Dark** UI theme.
+- Custom **PieChart** widget using pure `tkinter.Canvas`.
+- Weighted distribution model for per-process bandwidth estimation.
+
+---
+*Developed by Fuinha Team - Translating your internet for you.*
