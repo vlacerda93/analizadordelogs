@@ -54,3 +54,4 @@ analise-de-logs-linux/
 ## Sobre
 
 Projeto criado como parte dos estudos para SOC Analyst Level 1, seguindo o caminho de aprendizado do TryHackMe e conteúdos de  segurança cibernética com python e shell.
+[BUILD_GUIDE.md](https://github.com/user-attachments/files/25664456/BUILD_GUIDE.md)
