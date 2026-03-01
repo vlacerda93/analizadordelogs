@@ -1,0 +1,20 @@
+{
+    "title": "Fuinha - Network Monitor",
+    "dashboard": "Show Dashboard",
+    "language": "Language",
+    "exit": "Exit",
+    "upload": "UPLOAD",
+    "download": "DOWNLOAD",
+    "active_apps": "Active Processes",
+    "process_name": "Process Name",
+    "download_rate": "Download (KB/s)",
+    "upload_rate": "Upload (KB/s)",
+    "fuinha_tip_title": "Fuinha's Tip",
+    "insight_upload_saturation": "ALERT: High upload detected! This can make your browsing slow.",
+    "insight_high_download": "INFO: You are downloading data at high speed. Enjoy!",
+    "insight_no_admin": "WARNING: Run as Admin to identify which apps are using the network.",
+    "insight_tip_1": "Tip: Saturated Upload usually freezes online games and video calls.",
+    "insight_tip_2": "Tip: Close Torrent apps if you're not using them to free up your connection.",
+    "insight_tip_3": "Tip: Fuinha helps you find out who is 'eating' your internet.",
+    "system_others": "System / Others"
+}
