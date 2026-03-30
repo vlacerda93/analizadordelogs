@@ -1,0 +1,10 @@
+Package: fuinha-monitor
+Version: 3.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Vinicius Lacerda <vinicius@example.com>
+Description: Fuinha Network Monitor
+ A user-centric network monitoring tool designed to demystify internet usage.
+ Provides real-time stats and insights about application network usage.
+Depends: python3, python3-psutil, python3-pil, python3-tk
