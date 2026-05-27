@@ -3,6 +3,7 @@ import os
 from collections import Counter
 from datetime import datetime
 import csv
+import psutil
 
 class LogAnalyzer:
     def __init__(self):
@@ -70,6 +71,56 @@ class LogAnalyzer:
             writer.writerow(['IP', 'Count'])
             writer.writerows(stats['top_ips'])
         return True
+
+    def check_auth_logs(self):
+        log_paths = ['/var/log/auth.log', '/var/log/secure']
+        failed_attempts = 0
+        details = []
+        for path in log_paths:
+            if os.path.exists(path):
+                try:
+                    with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                        lines = f.readlines()
+                        for line in lines[-1000:]:
+                            if 'Failed password' in line or 'authentication failure' in line or 'invalid user' in line.lower():
+                                failed_attempts += 1
+                                details.append(line.strip())
+                    break # Se leu com sucesso, para
+                except PermissionError:
+                    return f"Erro: Permissão negada. Execute o Fuinha como root/sudo para ler {path}."
+                except Exception as e:
+                    return f"Erro ao ler {path}: {str(e)}"
+                
+        if not details and failed_attempts == 0:
+            return "✅ Nenhuma tentativa de intrusão detectada nos logs de sistema recentes."
+            
+        res = f"⚠️ ATENÇÃO: {failed_attempts} tentativas de intrusão (falhas de login) detectadas recentemente!\n\nÚltimos registros suspeitos:\n"
+        for d in details[-15:]:
+            res += f"- {d}\n"
+        return res
+
+    def check_open_ports(self):
+        res = "🔍 Auditoria de Portas Abertas (Servidores locais aguardando conexão):\n\n"
+        res += f"{'PROCESSO':<25} {'PORTA':<10} {'STATUS':<15}\n"
+        res += "-"*50 + "\n"
+        try:
+            conns = psutil.net_connections(kind='inet')
+            listening = [c for c in conns if c.status == 'LISTEN']
+            if not listening:
+                return res + "Nenhuma porta aberta detectada."
+                
+            for c in listening:
+                try:
+                    proc = psutil.Process(c.pid) if c.pid else None
+                    name = proc.name() if proc else "Sistema/Desconhecido"
+                except:
+                    name = "Restrito"
+                port = c.laddr.port if c.laddr else "N/A"
+                res += f"{name:<25} {port:<10} {c.status:<15}\n"
+        except (psutil.AccessDenied, PermissionError):
+            return "Erro: Permissão negada para listar conexões. Execute como sudo."
+            
+        return res
 
 # Example usage
 if __name__ == '__main__':

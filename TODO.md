@@ -13,8 +13,8 @@
 
 ### 3. 🛠️ Implementar Features
 #### A. Fix Bugs v3.0
-- [ ] ui_manager.py: Adicionar CTkTabview; setup_ui() só uma vez; novo `update_dashboard(stats)` (update labels/chart/text sem recriar).
-- [ ] monitor_engine.py: Insights lógicos (não random); throttle 2s; persist tip 10s.
+- [x] ui_manager.py: Adicionar CTkTabview; setup_ui() só uma vez; novo `update_dashboard(stats)` (update labels/chart/text sem recriar).
+- [x] monitor_engine.py: Insights lógicos (não random); persist tip 10s.
 #### B. Nova Aba Logs
 - [ ] ui_manager.py: Aba \"Analisador de Logs\" com file dialog, textbox resultados, botões Analyze/Export CSV, live tail checkbox.
 - [ ] log_analyzer.py: Funções parse_log(file): top_ips, erros count, filter data/IP; tail live.

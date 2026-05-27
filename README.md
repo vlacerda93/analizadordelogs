@@ -35,8 +35,8 @@ We moved beyond processing static `.log` files to dynamic monitoring using Pytho
 - [x] **Core Engine:** Traffic capture per Process ID (PID).
 - [x] **UI v1.0:** Dashboard with global metrics and active process list.
 - [x] **Data Viz:** Pie chart integration for bandwidth distribution (v3.0).
-- [ ] **Security Focus:** Flagging connections to suspicious IPs.
-- [ ] **System Tray:** Persistent background operation (Minimize to Tray).
+- [x] **Security Focus:** Flagging connections to suspicious IPs.
+- [x] **System Tray:** Persistent background operation (Minimize to Tray).
 - [x] **Internationalization:** Full support for Portuguese (PT-BR) and English (EN).
 
 ---

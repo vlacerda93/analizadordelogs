@@ -106,13 +106,13 @@ class UIManager:
         self.header_frame.pack(fill="x", padx=20, pady=10)
         self.dl_block = ctk.CTkFrame(self.header_frame, fg_color="#1a1a1a", border_width=2, border_color="#00FFAA")
         self.dl_block.pack(side="left", fill="both", expand=True, padx=(0, 10))
-        ctk.CTkLabel(self.dl_block, text=self.locales["download"], font=ctk.CTkFont(size=14, weight="bold"), text_color="#00FFAA").pack(pady=(10, 0))
-        self.dl_val_label = ctk.CTkLabel(self.dl_block, text="0.0 MB/s", font=ctk.CTkFont(size=28, weight="bold"))
+        ctk.CTkLabel(self.dl_block, text=self.locales["download"] + " ⬇️", font=ctk.CTkFont(size=14, weight="bold"), text_color="#00FFAA").pack(pady=(10, 0))
+        self.dl_val_label = ctk.CTkLabel(self.dl_block, text="0.0 Mbps", font=ctk.CTkFont(size=28, weight="bold"))
         self.dl_val_label.pack(pady=(0, 10))
         self.ul_block = ctk.CTkFrame(self.header_frame, fg_color="#1a1a1a", border_width=2, border_color="#FF8800")
         self.ul_block.pack(side="left", fill="both", expand=True, padx=(10, 0))
-        ctk.CTkLabel(self.ul_block, text=self.locales["upload"], font=ctk.CTkFont(size=14, weight="bold"), text_color="#FF8800").pack(pady=(10, 0))
-        self.ul_val_label = ctk.CTkLabel(self.ul_block, text="0.0 MB/s", font=ctk.CTkFont(size=28, weight="bold"))
+        ctk.CTkLabel(self.ul_block, text=self.locales["upload"] + " ⬆️", font=ctk.CTkFont(size=14, weight="bold"), text_color="#FF8800").pack(pady=(10, 0))
+        self.ul_val_label = ctk.CTkLabel(self.ul_block, text="0.0 Mbps", font=ctk.CTkFont(size=28, weight="bold"))
         self.ul_val_label.pack(pady=(0, 10))
         # Chart & Legend
         self.chart_container = ctk.CTkFrame(self.network_tab, fg_color="#1a1a1a", height=200)
@@ -122,6 +122,16 @@ class UIManager:
         self.pie_chart.pack(side="left", padx=20)
         self.legend_frame = ctk.CTkFrame(self.chart_container, fg_color="transparent")
         self.legend_frame.pack(side="left", fill="both", expand=True)
+        
+        self.legend_rows = []
+        for i in range(6):
+            l_frame = ctk.CTkFrame(self.legend_frame, fg_color="transparent")
+            color_frame = ctk.CTkFrame(l_frame, width=12, height=12)
+            color_frame.pack(side="left", padx=5)
+            label = ctk.CTkLabel(l_frame, text="", font=ctk.CTkFont(size=12))
+            label.pack(side="left")
+            self.legend_rows.append((l_frame, color_frame, label))
+
         # Textbox
         self.apps_label = ctk.CTkLabel(self.network_tab, text=self.locales["active_apps"], font=ctk.CTkFont(size=16, weight="bold"))
         self.apps_label.pack(anchor="w", padx=20, pady=(20, 5))
@@ -129,20 +139,24 @@ class UIManager:
         self.apps_textbox.pack(fill="both", expand=True, padx=20, pady=5)
 
     def setup_logs_tab(self):
-        # File label
-        self.log_file_label = ctk.CTkLabel(self.logs_tab, text=self.locales["log_no_file"])
-        self.log_file_label.pack(pady=10)
+        title_label = ctk.CTkLabel(self.logs_tab, text="Auditoria de Segurança Local", font=ctk.CTkFont(size=18, weight="bold"))
+        title_label.pack(pady=10)
+        
         # Buttons frame
         btn_frame = ctk.CTkFrame(self.logs_tab)
         btn_frame.pack(fill="x", padx=20, pady=10)
-        ctk.CTkButton(btn_frame, text=self.locales["choose_file"], command=self.choose_log_file).pack(side="left", padx=10)
-        self.analyze_btn = ctk.CTkButton(btn_frame, text=self.locales["analyze_btn"], command=self.analyze_log, state="disabled")
-        self.analyze_btn.pack(side="left", padx=10)
-        self.export_btn = ctk.CTkButton(btn_frame, text=self.locales["export_csv"], command=self.export_log, state="disabled")
-        self.export_btn.pack(side="left", padx=10)
+        
+        btn_auth = ctk.CTkButton(btn_frame, text="Verificar Intrusões (Logs)", command=self.run_auth_audit)
+        btn_auth.pack(side="left", padx=10, expand=True)
+        
+        btn_ports = ctk.CTkButton(btn_frame, text="Detectar Portas Abertas", command=self.run_ports_audit)
+        btn_ports.pack(side="left", padx=10, expand=True)
+        
         # Results
-        self.log_results_text = ctk.CTkTextbox(self.logs_tab, height=400)
+        self.log_results_text = ctk.CTkTextbox(self.logs_tab, font=ctk.CTkFont(family="Consolas", size=13), height=400)
         self.log_results_text.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        self.log_results_text.insert("0.0", "Clique em um dos botões acima para iniciar uma auditoria de segurança na máquina.")
 
     def setup_footer(self):
         self.footer_frame = ctk.CTkFrame(self.app, fg_color="#1a1a1a", height=100)
@@ -153,40 +167,29 @@ class UIManager:
         self.insight_label = ctk.CTkLabel(self.footer_frame, text="", font=ctk.CTkFont(size=13), wraplength=600, justify="left", text_color="#DDDDDD")
         self.insight_label.pack(anchor="w", padx=15, pady=5)
 
-    def choose_log_file(self):
-        path = filedialog.askopenfilename(title="Selecionar Log", filetypes=[("Log files", "*.log"), ("All", "*.*")])
-        if path:
-            self.log_file_path = path
-            self.log_file_label.configure(text=f"Arquivo: {os.path.basename(path)}")
-            self.analyze_btn.configure(state="normal")
-            self.export_btn.configure(state="normal")
-
-    def analyze_log(self):
-        if not self.log_file_path:
-            return
-        stats = self.log_analyzer.parse_log(self.log_file_path)
+    def run_auth_audit(self):
         self.log_results_text.delete("0.0", "end")
-        text = f"""
-Total Linhas: {stats['total_lines']}
-Top IPs: {stats['top_ips'][:5]}
-Erros: {stats['errors_count']} ({stats['error_rate']:.1f}%)
-Sucessos: {stats['success']}
-        """
-        self.log_results_text.insert("0.0", text)
+        self.log_results_text.insert("0.0", "Analisando logs do sistema...\n")
+        self.app.update()
+        result = self.log_analyzer.check_auth_logs()
+        self.log_results_text.delete("0.0", "end")
+        self.log_results_text.insert("0.0", result)
 
-    def export_log(self):
-        if self.log_file_path:
-            out_path = self.log_file_path.replace('.log', '_analysis.csv')
-            self.log_analyzer.export_csv(self.log_file_path, out_path)
-            messagebox.showinfo("Export", f"Exportado para {out_path}")
+    def run_ports_audit(self):
+        self.log_results_text.delete("0.0", "end")
+        self.log_results_text.insert("0.0", "Mapeando portas abertas...\n")
+        self.app.update()
+        result = self.log_analyzer.check_open_ports()
+        self.log_results_text.delete("0.0", "end")
+        self.log_results_text.insert("0.0", result)
 
     def update_stats(self, stats):
         self.app.after(0, self.update_network_tab, stats)
 
     def update_network_tab(self, stats):
         # Headers
-        self.dl_val_label.configure(text=f"{stats['total_dl_mb']:.1f} MB/s")
-        self.ul_val_label.configure(text=f"{stats['total_ul_mb']:.1f} MB/s")
+        self.dl_val_label.configure(text=f"{stats['total_dl_mb']:.1f} Mbps")
+        self.ul_val_label.configure(text=f"{stats['total_ul_mb']:.1f} Mbps")
         # Insight
         new_tip = self.locales.get(stats['insight'], stats['insight'])
         if new_tip != self.current_tip:
@@ -195,12 +198,13 @@ Sucessos: {stats['success']}
         # Apps list & chart
         self.apps_textbox.configure(state="normal")
         self.apps_textbox.delete("1.0", "end")
-        for widget in self.legend_frame.winfo_children():
-            widget.destroy()
+        
         apps = stats['apps']
         if not apps:
             self.apps_textbox.insert("end", self.locales["insight_no_admin"])
             self.pie_chart.update_chart({})
+            for l_frame, _, _ in self.legend_rows:
+                l_frame.pack_forget()
         else:
             sorted_apps = sorted(apps.items(), key=lambda x: (x[1]['dl_kb'] + x[1]['ul_kb']), reverse=True)
             top_apps = {name: data['dl_kb'] + data['ul_kb'] for name, data in sorted_apps[:5] if data['dl_kb'] + data['ul_kb'] > 0}
@@ -210,12 +214,22 @@ Sucessos: {stats['success']}
                 ul_val = f"{data['ul_kb']:.1f}"
                 line = f"{app:<25} DL:{dl_val:>6} UL:{ul_val:>6}\n"
                 self.apps_textbox.insert("end", line)
-                if i < 6:
+            
+            for i, (l_frame, color_frame, label) in enumerate(self.legend_rows):
+                if i < len(sorted_apps) and i < 6:
+                    app_name = sorted_apps[i][0]
                     color = self.pie_chart.colors[i % len(self.pie_chart.colors)]
-                    l_frame = ctk.CTkFrame(self.legend_frame, fg_color="transparent")
+                    color_frame.configure(fg_color=color)
+                    label.configure(text=app_name)
                     l_frame.pack(fill="x", pady=2)
-                    ctk.CTkFrame(l_frame, width=12, height=12, fg_color=color).pack(side="left", padx=5)
-                    ctk.CTkLabel(l_frame, text=app, font=ctk.CTkFont(size=12)).pack(side="left")
+                else:
+                    l_frame.pack_forget()
+                    
+        if stats.get('suspicious'):
+            self.apps_textbox.insert("end", "\n--- ⚠️ AVISO DE SEGURANÇA ---\n")
+            for s in stats['suspicious']:
+                self.apps_textbox.insert("end", f"Conexão suspeita: {s['app']} -> {s['ip']}\n")
+                
         self.apps_textbox.configure(state="disabled")
 
     # Tray & other methods same as original (create_image, set_language_en/pt, init_tray, etc.)
