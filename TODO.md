@@ -15,10 +15,11 @@
 #### A. Fix Bugs v3.0
 - [x] ui_manager.py: Adicionar CTkTabview; setup_ui() só uma vez; novo `update_dashboard(stats)` (update labels/chart/text sem recriar).
 - [x] monitor_engine.py: Insights lógicos (não random); persist tip 10s.
-#### B. Nova Aba Logs
-- [ ] ui_manager.py: Aba \"Analisador de Logs\" com file dialog, textbox resultados, botões Analyze/Export CSV, live tail checkbox.
-- [ ] log_analyzer.py: Funções parse_log(file): top_ips, erros count, filter data/IP; tail live.
-#### C. Melhorias Extras (Sugestões)
+#### B. Nova Aba Logs (Security Auditor)
+- [x] ui_manager.py: Aba transformada em "Auditoria de Segurança Local" com botões de Verificação de Intrusões e Portas.
+- [x] log_analyzer.py: Implementados `check_auth_logs()` para `/var/log/auth.log` e `check_open_ports()`.
+#### C. Melhorias Extras e Identidade Visual
+- [x] Adicionar ícone oficial do projeto (Fuinha Neon) em `assets/icon.png`.
 - [ ] Alertas: Threshold uso (ex: >10MB/s beep/notif).
 - [ ] Histórico: Linha gráfico rede (5min history).
 - [ ] Locales: pt_BR/en strings novas.
