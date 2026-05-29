@@ -14,8 +14,11 @@ We moved beyond processing static `.log` files to dynamic monitoring using Pytho
 - **Process Mapping**: Automatic identification of software (Brave, Discord, Steam, etc.) generating network traffic.
 - **Process-Level Visibility**: See exactly how much bandwidth each application is using.
 - **Visual Insights**: A dynamic pie chart showing bandwidth distribution among top processes.
+- **Security Auditor (v4.0)**: Automatically scan local auth logs for intrusion attempts and brute-force attacks.
+- **Open Ports Detector**: Real-time listing of all applications acting as servers and waiting for connections.
 - **Insight Engine**: Plain-language tips ("Fuinha's Tip") to help manage your connection and alerts about upload saturation.
 - **Smart Interface**: Modern Dark Mode dashboard built for high performance (RAM usage < 50MB) using `customtkinter`.
+- **Custom Branding**: Features a unique geometric neon weasel icon across the UI and system tray.
 - **Multilingual**: Support for Portuguese (PT-BR) and English (EN).
 - **Cross-Platform**: Native support for Windows (.exe) and Linux (.deb).
 
