@@ -105,12 +105,26 @@ class NetworkMonitor:
             for conn in conns:
                 # Filter for ESTABLISHED to focus on active transfers
                 if conn.status == 'ESTABLISHED' and conn.pid:
-                    try:
                         proc = psutil.Process(conn.pid)
                         name = proc.name()
-                        # Mapper
-                        if name == "language_server_linux_x64":
-                            name = "fuinhanalyser"
+                        
+                        # Se for o próprio processo do Fuinha
+                        if conn.pid == os.getpid():
+                            name = "Fuinha Network Monitor"
+                        else:
+                            # Mapeador de nomes amigáveis para processos do sistema
+                            mapper = {
+                                "language_server_windows_x64.exe": "Language Server (IDE)",
+                                "language_server_linux_x64": "Language Server (IDE)",
+                                "SearchApp.exe": "Windows Search (Menu Iniciar)",
+                                "svchost.exe": "Serviços do Windows (svchost)",
+                                "FileCoAuth.exe": "OneDrive Sync",
+                                "OneDrive.Sync.Service.exe": "OneDrive Sync Engine",
+                                "mpdefendercoreservice.exe": "Windows Defender Antivirus",
+                                "MsMpEng.exe": "Windows Defender Antivirus",
+                                "Fuinha.exe": "Fuinha Network Monitor"
+                            }
+                            name = mapper.get(name, name)
                             
                         apps_found[name] = apps_found.get(name, 0) + 1
                         

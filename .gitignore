@@ -3,11 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 venv/
+.venv/
 .env
 
 # Distribution / Build
 dist/
 build/
+*.spec
 
 # Local config
 .vscode/

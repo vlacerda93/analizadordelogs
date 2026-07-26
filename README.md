@@ -1,72 +1,51 @@
-# 🕵️‍♂️ Fuinha Network Monitor (v3.0)
+# 🦡 Fuinha Network Monitor (v4.0)
 
-**From static log analysis to real-time network sentry.** Fuinha has evolved from a simple Bash log parser into a dynamic, real-time network monitoring tool designed for Information Security (IS) students and Junior SOC Analysts. It acts as a "Network Translator," mapping abstract data packets directly to system processes.
-
----
-
-## 🚀 The Evolution
-We moved beyond processing static `.log` files to dynamic monitoring using Python's `psutil` library. This allows the tool to sniff metrics directly from the OS Kernel (Windows/Linux), providing a live view of your machine's digital footprint.
+**Monitor de tráfego de rede e analisador de logs em tempo real.**  
+O Fuinha traduz os pacotes de dados da sua rede e mapeia diretamente quais aplicativos (Brave, Discord, IDE, etc.) estão consumindo sua banda.
 
 ---
 
-## ✨ Key Features
-- **Real-Time Monitoring**: Instant visualization of global Download and Upload throughput (MB/s).
-- **Process Mapping**: Automatic identification of software (Brave, Discord, Steam, etc.) generating network traffic.
-- **Process-Level Visibility**: See exactly how much bandwidth each application is using.
-- **Visual Insights**: A dynamic pie chart showing bandwidth distribution among top processes.
-- **Security Auditor (v4.0)**: Automatically scan local auth logs for intrusion attempts and brute-force attacks.
-- **Open Ports Detector**: Real-time listing of all applications acting as servers and waiting for connections.
-- **Insight Engine**: Plain-language tips ("Fuinha's Tip") to help manage your connection and alerts about upload saturation.
-- **Smart Interface**: Modern Dark Mode dashboard built for high performance (RAM usage < 50MB) using `customtkinter`.
-- **Custom Branding**: Features a unique geometric neon weasel icon across the UI and system tray.
-- **Multilingual**: Support for Portuguese (PT-BR) and English (EN).
-- **Cross-Platform**: Native support for Windows (.exe) and Linux (.deb).
+## 📦 Pacotes e Pré-requisitos (Leve e Enxuto)
+
+O Fuinha é extremamente leve e requer apenas **4 pacotes Python** para funcionar:
+- **`psutil`**: Captura de métricas de rede e PIDs de processos.
+- **`customtkinter`**: Interface gráfica moderna e responsiva em Dark Mode.
+- **`pystray`**: Suporte à bandeja do sistema (System Tray).
+- **`Pillow`**: Renderização do ícone oficial do Texugo do Mel.
+
+> **Requisito do Sistema:** Python 3.10+ instalado no Windows ou Linux. *(No Windows, recomendado executar com permissões de Administrador para mapear todos os PIDs).*
 
 ---
 
-## 🛠️ Tech Stack
-* **Python 3.10+**: Core application logic.
-* **Psutil**: Low-level system and network metric capture.
-* **Modern GUI**: Hardware-accelerated interface (CustomTkinter/PySide).
-* **Multi-Threading**: Decoupled network sniffing for a responsive UI.
-* **Pillow**: Image processing for UI elements.
-* **pystray**: (Optional) System tray integration.
+## 🚀 Como Instalar e Rodar no Windows
+
+### 1. Rodar Direto (1 Clique)
+Dê um duplo clique no arquivo **`run_fuinha.bat`**. O script instala os 4 pacotes automaticamente e inicia o programa.
+
+### 2. Gerar Executável (`.exe`) e Atalho no Menu Iniciar
+Dê um duplo clique no arquivo **`build_installer.bat`**.
+- Compila o aplicativo standalone **`dist/Fuinha.exe`** (funciona sem precisar de Python).
+- Adiciona o atalho oficial com o ícone do Texugo do Mel no **Menu Iniciar do Windows** e na **Área de Trabalho**.
+- Após a instalação, basta abrir o Menu Iniciar e digitar **`Fuinha`**.
+
+### 3. Desinstalar Atalhos do Windows
+Dê um duplo clique em **`uninstall_fuinha.bat`** para remover todos os atalhos criados.
 
 ---
 
-## 📋 Project Roadmap
-- [x] **Core Engine:** Traffic capture per Process ID (PID).
-- [x] **UI v1.0:** Dashboard with global metrics and active process list.
-- [x] **Data Viz:** Pie chart integration for bandwidth distribution (v3.0).
-- [x] **Security Focus:** Flagging connections to suspicious IPs.
-- [x] **System Tray:** Persistent background operation (Minimize to Tray).
-- [x] **Internationalization:** Full support for Portuguese (PT-BR) and English (EN).
-
----
-
-## 🔧 How to Run (Dev Environment)
-
-### Linux
-Fuinha requires `psutil` and `customtkinter`. To identify specific processes and their network usage on Linux, it is recommended to run as **Superuser (Sudo)**:
+## 🐧 Como Rodar no Linux
 
 ```bash
-# Clone the repository
-git clone https://github.com/vlacerda93/fuinha-network-monitor.git
-
-# Navigate to the folder
-cd fuinha-network-monitor
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the sentry
-sudo python3 ver3.0/main.py
+chmod +x run_fuinha.sh
+./run_fuinha.sh
 ```
 
-### Windows
-Run with Administrator privileges to ensure all process names are captured correctly:
+---
 
-```powershell
+## 🔧 Execução Manual via Terminal
+
+```bash
+pip install -r requirements.txt
 python ver3.0/main.py
 ```
 

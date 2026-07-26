@@ -5,6 +5,7 @@ from tkinter import filedialog, messagebox
 import pystray
 from PIL import Image, ImageDraw
 import threading
+import queue
 import json
 import locale
 import sys
@@ -67,9 +68,11 @@ class UIManager:
         ctk.set_appearance_mode("dark")
         self.language = "pt_BR"
         self._load_language()
+        self.stats_queue = queue.Queue()
         self.app.protocol('WM_DELETE_WINDOW', self.withdraw_window)
         self.setup_ui()
         self.engine.callback = self.update_stats
+        self._schedule_queue_check()
 
     def _load_language(self):
         sys_lang = locale.getdefaultlocale()[0]
@@ -183,8 +186,17 @@ class UIManager:
         self.log_results_text.delete("0.0", "end")
         self.log_results_text.insert("0.0", result)
 
+    def _schedule_queue_check(self):
+        try:
+            while not self.stats_queue.empty():
+                stats = self.stats_queue.get_nowait()
+                self.update_network_tab(stats)
+        except Exception:
+            pass
+        self.app.after(500, self._schedule_queue_check)
+
     def update_stats(self, stats):
-        self.app.after(0, self.update_network_tab, stats)
+        self.stats_queue.put(stats)
 
     def update_network_tab(self, stats):
         # Headers
@@ -265,23 +277,29 @@ class UIManager:
         return image
 
     def init_tray(self):
-        image = self.create_image()
-        menu = pystray.Menu(
-            pystray.MenuItem(self.locales["dashboard"], self.show_window, default=True),
-            pystray.MenuItem(self.locales["language"], pystray.Menu(
-                pystray.MenuItem("English", self.set_language_en),
-                pystray.MenuItem("Português", self.set_language_pt)
-            )),
-            pystray.MenuItem(self.locales["exit"], self.quit_window)
-        )
-        self.tray_icon = pystray.Icon("Fuinha", image, self.locales["title"], menu)
-        threading.Thread(target=self.tray_icon.run, daemon=True).start()
+        try:
+            image = self.create_image()
+            menu = pystray.Menu(
+                pystray.MenuItem(self.locales.get("dashboard", "Dashboard"), self.show_window, default=True),
+                pystray.MenuItem(self.locales.get("language", "Idioma"), pystray.Menu(
+                    pystray.MenuItem("English", self.set_language_en),
+                    pystray.MenuItem("Português", self.set_language_pt)
+                )),
+                pystray.MenuItem(self.locales.get("exit", "Sair"), self.quit_window)
+            )
+            title = self.locales.get("title", "Fuinha v4.0")
+            self.tray_icon = pystray.Icon("Fuinha", image, title, menu)
+            threading.Thread(target=self.tray_icon.run, daemon=True).start()
+        except Exception as e:
+            print(f"Aviso Tray Icon: {e}")
 
     def withdraw_window(self):
         self.app.withdraw()
 
     def show_window(self, icon=None, item=None):
         self.app.deiconify()
+        self.app.lift()
+        self.app.focus_force()
 
     def quit_window(self, icon=None, item=None):
         if self.tray_icon:
@@ -291,5 +309,13 @@ class UIManager:
 
     def run(self):
         self.engine.start()
-        self.init_tray()
+        try:
+            self.init_tray()
+        except Exception as e:
+            print(f"Erro ao inicializar tray: {e}")
+        self.app.deiconify()
+        self.app.lift()
+        self.app.focus_force()
+        self.app.attributes('-topmost', True)
+        self.app.after(500, lambda: self.app.attributes('-topmost', False))
         self.app.mainloop()

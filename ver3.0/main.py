@@ -6,10 +6,13 @@ from ui_manager import UIManager
 
 def main():
     if not is_admin() and os.name == 'nt':
-        # Prompt UAC if not admin on Windows
-        print("Requisitando permissões de Administrador...")
-        run_as_admin()
-        return
+        if "--no-admin" not in sys.argv:
+            print("Requisitando permissões de Administrador...")
+            try:
+                run_as_admin()
+                return
+            except Exception as e:
+                print(f"Não foi possível elevar privilégios: {e}. Executando em modo usuário...")
 
     engine = NetworkMonitor(callback=None)
     ui = UIManager(engine)
